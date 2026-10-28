@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>StockSense AI – Inventory Intelligence</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg:#eefaf8;--card:#fff;--tx:#0b2530;--mut:#5b7885;--bd:#d3ebe6;--a:#06b6a4;--b:#3b82f6;--c:#84cc16;--d:#ff4d6d;--e:#ff9f1c;--f:#7b5cff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#06141c;--card:#0d2230;--tx:#e8fbf7;--mut:#8fb3bd;--bd:#1b3b4b}}
+:root[data-theme="dark"]{--bg:#06141c;--card:#0d2230;--tx:#e8fbf7;--mut:#8fb3bd;--bd:#1b3b4b}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;font-size:14px}
+.wrap{max-width:1320px;margin:auto;padding:16px}
+header{padding:22px 26px;border-radius:22px;background:linear-gradient(115deg,#06b6a4,#3b82f6 50%,#7b5cff);color:#fff;display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center}
+header h1{margin:0;font-size:25px}header p{margin:4px 0 0;opacity:.93}
+.grid{display:grid;gap:14px;margin-top:14px}.k{grid-template-columns:repeat(auto-fit,minmax(175px,1fr))}.two{grid-template-columns:repeat(auto-fit,minmax(380px,1fr))}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:18px;min-width:0}
+.card h3{margin:0 0 3px;font-size:15px}.sub{color:var(--mut);font-size:12px;margin-bottom:10px}
+.kpi{border-top:4px solid var(--x)}.kpi .l{color:var(--mut);font-size:12px}.kpi .v{font-size:26px;font-weight:800;margin:3px 0}.kpi .d{font-size:12px;font-weight:600;color:var(--x)}
+.cv{position:relative;height:290px}
+.chip{border:1px solid var(--bd);background:var(--card);color:var(--tx);padding:6px 12px;border-radius:99px;cursor:pointer;font-size:12.5px}.chip.on{background:linear-gradient(90deg,var(--a),var(--b));color:#fff;border-color:transparent}
+.tg{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.sc{overflow-x:auto}table{border-collapse:separate;border-spacing:0 3px;width:100%;font-size:12.5px;white-space:nowrap}th{color:var(--mut);text-align:right;padding:6px 8px;font-weight:600}th:first-child,td:first-child{text-align:left}
+td{padding:8px;text-align:right;background:var(--bg)}td:first-child{border-radius:10px 0 0 10px;font-weight:600}td:last-child{border-radius:0 10px 10px 0;text-align:left}tr.row{cursor:pointer}tr.sel td{outline:0;background:rgba(6,182,164,.18)}
+.bd{display:inline-block;padding:3px 10px;border-radius:99px;color:#fff;font-weight:700;font-size:11px}
+.sl{margin:8px 0}.sl label{display:flex;justify-content:space-between;font-size:13px}.sl input{width:100%;accent-color:var(--a)}
+select{padding:8px 12px;border-radius:10px;border:1px solid var(--bd);background:var(--bg);color:var(--tx)}
+.po{display:flex;justify-content:space-between;gap:10px;padding:10px 12px;margin:6px 0;border-radius:12px;background:var(--bg);border-left:5px solid var(--x)}.po small{color:var(--mut);display:block}
+.chat{display:flex;flex-direction:column;height:440px}.msgs{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px}
+.m{padding:10px 13px;border-radius:14px;max-width:93%;line-height:1.55}.m.a{background:linear-gradient(135deg,rgba(6,182,164,.15),rgba(123,92,255,.15));border:1px solid var(--bd)}.m.u{align-self:flex-end;background:linear-gradient(90deg,var(--a),var(--f));color:#fff}
+.in{display:flex;gap:8px;margin-top:10px}.in input{flex:1;padding:11px 14px;border-radius:12px;border:1px solid var(--bd);background:var(--bg);color:var(--tx)}
+.btn{border:0;border-radius:12px;padding:0 18px;background:linear-gradient(90deg,var(--a),var(--b));color:#fff;font-weight:700;cursor:pointer}
+.ins{border-left:4px solid var(--e);padding:8px 12px;margin:8px 0;background:var(--bg);border-radius:0 10px 10px 0}
+.hm td{text-align:center;color:#fff;font-weight:700;padding:8px 4px;border-radius:6px}.hm td:first-child{background:none;color:var(--tx);text-align:left}
+</style></head><body><div class="wrap">
+<header><div><h1>📦 StockSense AI</h1><p>Inventory Intelligence · demand forecast × seasonality × supplier lead time → decisions · 16 SKUs, assumed data · as of 27 Oct 2026</p></div><div class="bd" style="background:#fff;color:#06b6a4">● Agent online</div></header>
+<div class="card" style="margin-top:14px"><h3>🎛️ Scenario Controls — the whole dashboard recalculates</h3><div class="sub">Stress-test service level, supplier delays and festive demand surge</div>
+<div class="grid two" style="margin:0"><div class="sl"><label><span>Target service level</span><b id="v1"></b></label><input type="range" id="s1" min="90" max="99.5" step=".5" value="95"></div>
+<div class="sl"><label><span>Supplier delay (extra days)</span><b id="v2"></b></label><input type="range" id="s2" min="0" max="20" value="0"></div>
+<div class="sl"><label><span>Demand surge vs forecast</span><b id="v3"></b></label><input type="range" id="s3" min="-20" max="40" value="0"></div></div></div>
+<div class="grid k" id="kpis"></div>
+<div class="grid two"><div class="card"><h3>🚦 Inventory Health Mix</h3><div class="sub">Same warehouse, opposite problems</div><div class="cv"><canvas id="dn"></canvas></div></div>
+<div class="card"><h3>⏳ Days of Cover vs Supplier Lead Time</h3><div class="sub">Bars below the red marker will stock out before a new order arrives</div><div class="cv"><canvas id="cov"></canvas></div></div></div>
+<div class="card" style="margin-top:14px"><h3>🧮 SKU Decision Table</h3><div class="sub">Click a row to open its forecast and projection</div><div class="tg" id="fl"></div><div class="sc"><table id="tb"></table></div></div>
+<div class="card" style="margin-top:14px"><div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center"><div><h3 id="dt">🔬 SKU Deep Dive</h3><div class="sub" id="ds"></div></div><select id="pk"></select></div>
+<div class="grid two" style="margin-top:6px"><div><div class="sub"><b>Demand history + seasonal forecast</b> (80% band)</div><div class="cv"><canvas id="fc"></canvas></div></div><div><div class="sub"><b>Stock projection:</b> do nothing vs. recommended order</div><div class="cv"><canvas id="pj"></canvas></div></div></div></div>
+<div class="grid two"><div class="card"><h3>🌦️ Seasonality Heatmap</h3><div class="sub">Demand index by month (1.0 = average) · current month outlined</div><div class="sc"><table class="hm" id="hm"></table></div></div>
+<div class="card"><h3>🚚 Supplier Lead-Time Risk</h3><div class="sub">Average lead time + 2σ variability buffer</div><div class="cv"><canvas id="sp"></canvas></div></div></div>
+<div class="grid two"><div class="card"><h3>🛒 Recommended Purchase Orders</h3><div class="sub" id="pos"></div><div id="pol"></div></div>
+<div class="card"><h3>🏷️ Clearance & Hold List</h3><div class="sub" id="cs"></div><div id="cl"></div></div></div>
+<div class="grid two"><div class="card chat"><h3>🤖 Ask the Inventory Agent</h3><div class="sub">Plain-language questions over live scenario numbers</div><div class="tg" id="sg"></div><div class="msgs" id="msgs"></div><div class="in"><input id="q" placeholder="e.g. What should I reorder today?"><button class="btn" id="go">Ask</button></div></div>
+<div class="card"><h3>🧠 Auto Insights</h3><div id="ins"></div></div></div>
+</div>
+<script>
+const $=q=>document.querySelector(q),N=v=>Math.round(v).toLocaleString(),M=v=>Math.abs(v)>=1e6?"$"+(v/1e6).toFixed(2)+"M":"$"+Math.round(v/1e3)+"K";
+const MN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],CM=9;
+const SUP=[{n:"Shenzhen Tech",lt:35,sd:9,rel:82},{n:"Tirupur Textiles",lt:22,sd:5,rel:91},{n:"HomeCraft India",lt:18,sd:4,rel:93},{n:"FreshLine Foods",lt:6,sd:1.5,rel:97},{n:"ToyWorld Asia",lt:40,sd:12,rel:76}];
+const SEA={Electronics:[.8,.75,.8,.85,.9,.9,.85,.95,1,1.15,1.5,1.55],"Apparel (all-season)":[.8,.75,.9,1,1,.85,.8,1,1.2,1.4,1.3,1.35],"Winter wear":[1.6,1.3,.8,.5,.3,.2,.3,.5,.8,1.5,2,2.1],"Summer wear":[.9,1,1.4,1.7,1.8,1.5,1.1,.8,.6,.5,.45,.5],Home:[.9,.85,1,1,.95,.9,.9,.95,1,1.2,1.35,1.2],Grocery:[1,.95,1,1,1,1,1,1,1,1.1,1.2,1.2],Toys:[.7,.7,.75,.8,.85,.9,.85,.9,1,1.3,1.9,2]};
+const D=[["Wireless Earbuds Pro","Electronics","Electronics",0,1800,.03,79,42,1400,0,.25],["4K Smart TV 43in","Electronics","Electronics",0,420,.02,329,245,300,200,.2],["Portable Power Bank","Electronics","Electronics",0,1500,0,25,11,9800,0,.2],["Smartwatch Lite","Electronics","Electronics",0,600,-.04,99,58,3200,0,.25],
+["Winter Jackets","Apparel","Winter wear",1,900,.02,69,31,500,400,.2],["Denim Jeans","Apparel","Apparel (all-season)",1,1500,0,49,20,3100,0,.15],["Summer Dresses","Apparel","Summer wear",1,700,-.05,39,15,4200,0,.2],
+["Air Fryer","Home","Home",2,800,.03,89,52,650,0,.2],["Bedsheet Set","Home","Home",2,1100,0,35,16,2400,0,.15],["Decor Lamps","Home","Home",2,300,-.03,29,12,2900,0,.25],
+["Organic Oats 1kg","Grocery","Grocery",3,6000,0,6,3.2,2600,0,.12],["Cold Brew Coffee","Grocery","Grocery",3,4000,.04,4,2,520,0,.15],["Protein Bars 12pk","Grocery","Grocery",3,2200,-.02,18,9,9000,0,.15],
+["Building Blocks Set","Toys","Toys",4,1300,0,59,34,2100,0,.25],["RC Cars","Toys","Toys",4,500,-.02,45,25,4200,0,.25],["Board Games","Toys","Toys",4,700,.02,32,15,1800,600,.2]];
+const S=D.map((r,i)=>{const[n,cat,sea,sp,base,tr,price,cost,stock,oo,cv]=r,sv=SEA[sea],hist=[];for(let k=0;k<12;k++)hist.push(Math.round(base*Math.pow(1+tr,k-11)*sv[(10+k)%12]*(1+cv*.5*Math.sin(k*2.3+i*1.7))));return{n,cat,sea,sp:SUP[sp],spi:sp,tr,price,cost,stock,oo,cv,hist,sv,id:i,short:n.split(" ").slice(0,2).join(" ")}});
+const ZT=[[90,1.28],[95,1.645],[97,1.88],[98,2.05],[99,2.33],[99.5,2.58]],P={sl:95,dl:0,su:0},COL={"Stockout Risk":"#ff4d6d","Reorder Now":"#ff9f1c",Healthy:"#06b6a4",Overstock:"#7b5cff"};
+const zOf=p=>{for(let i=1;i<ZT.length;i++)if(p<=ZT[i][0]){const a=ZT[i-1],b=ZT[i];return a[1]+(b[1]-a[1])*(p-a[0])/(b[0]-a[0])}return 2.58};
+const dOver=(s,days)=>{let t=0,k=0;while(days>0){const x=Math.min(30,days);t+=s.fc[Math.min(k,5)]/30*x;days-=x;k++}return t};
+let flt="All",sel=0,ch={},busy=0;
+function calc(){const z=zOf(P.sl);S.forEach(s=>{const lv=[9,10,11].reduce((a,k)=>a+s.hist[k]/s.sv[(10+k)%12],0)/3;s.fc=[0,1,2,3,4,5].map(q=>lv*Math.pow(1+s.tr,q+1)*s.sv[(10+q)%12]*(1+P.su/100));
+s.d=s.fc[0]/30;s.LT=s.sp.lt+P.dl;s.LTD=dOver(s,s.LT);s.SS=z*Math.sqrt(s.LT*Math.pow(s.cv*s.d,2)+s.d*s.d*s.sp.sd*s.sp.sd);s.ROP=s.LTD+s.SS;s.pos=s.stock+s.oo;s.cover=s.stock/s.d;
+s.st=s.pos<s.LTD?"Stockout Risk":s.pos<s.ROP?"Reorder Now":s.cover>100?"Overstock":"Healthy";
+s.qty=(s.st==="Stockout Risk"||s.st==="Reorder Now")?Math.max(0,Math.ceil((s.LTD+s.SS+s.d*30-s.pos)/10)*10):0;s.poC=s.qty*s.cost;
+const ann=s.hist.reduce((a,b)=>a+b,0);s.eoq=Math.sqrt(2*ann*150/(.25*s.cost));s.ex=s.st==="Overstock"?Math.max(0,s.stock-s.d*75):0;s.exV=s.ex*s.cost;s.md=s.cover>200?30:s.cover>140?20:12;s.risk=Math.max(0,s.LTD-s.pos)*s.price;
+s.act=s.st==="Stockout Risk"?(s.cover<s.LT?"EXPEDITE "+N(s.qty)+" units":"Order "+N(s.qty)+" units now"):s.st==="Reorder Now"?"Order "+N(s.qty)+" units":s.st==="Overstock"?"Pause POs · markdown "+s.md+"%":"Hold · monitor"})}
+const T=(arr,f)=>arr.reduce((a,s)=>a+f(s),0),bad=()=>S.filter(s=>s.st==="Stockout Risk"),ovs=()=>S.filter(s=>s.st==="Overstock");
+function mk(id,cfg){if(ch[id])ch[id].destroy();Chart.defaults.color=getComputedStyle(document.documentElement).getPropertyValue("--mut").trim();ch[id]=new Chart($("#"+id),cfg)}
+const G={color:"rgba(128,160,170,.18)"},O=x=>({responsive:true,maintainAspectRatio:false,...x});
+function kpis(){const inv=T(S,s=>s.stock*s.cost),cogs=T(S,s=>s.hist.reduce((a,b)=>a+b,0)*s.cost),dem=T(S,s=>s.LTD),sh=T(S,s=>Math.max(0,s.LTD-s.pos));
+const k=[["Inventory Value",M(inv),S.length+" SKUs","#3b82f6"],["Stockout-Risk SKUs",bad().length+" / "+S.length,M(T(S,s=>s.risk))+" revenue at risk","#ff4d6d"],["Overstock Cash Trapped",M(T(S,s=>s.exV)),ovs().length+" slow SKUs","#7b5cff"],["Open Reorders",S.filter(s=>s.qty).length+" SKUs",M(T(S,s=>s.poC))+" PO value","#ff9f1c"],["Projected Fill Rate",((1-sh/dem)*100).toFixed(1)+"%","target "+P.sl+"%","#06b6a4"],["Inventory Turns",(cogs/inv).toFixed(1)+"x","annualised","#84cc16"]];
+$("#kpis").innerHTML=k.map(x=>`<div class="card kpi" style="--x:${x[3]}"><div class="l">${x[0]}</div><div class="v">${x[1]}</div><div class="d">${x[2]}</div></div>`).join("")}
+function top(){const ks=Object.keys(COL);mk("dn",{type:"doughnut",data:{labels:ks,datasets:[{data:ks.map(k=>S.filter(s=>s.st===k).length),backgroundColor:ks.map(k=>COL[k]),borderWidth:0}]},options:O({cutout:"62%",plugins:{legend:{position:"bottom"}}})});
+mk("cov",{data:{labels:S.map(s=>s.short),datasets:[{type:"bar",label:"Days of cover",data:S.map(s=>Math.round(s.cover)),backgroundColor:S.map(s=>COL[s.st]),borderRadius:6},{type:"line",label:"Lead time (days)",data:S.map(s=>s.LT),borderColor:"#ff4d6d",backgroundColor:"#ff4d6d",showLine:false,pointStyle:"rectRot",pointRadius:6}]},options:O({scales:{y:{type:"logarithmic",grid:G},x:{grid:{display:false},ticks:{maxRotation:60,font:{size:10}}}}})})}
+function table(){const f=["All",...Object.keys(COL)];$("#fl").innerHTML=f.map(x=>`<button class="chip ${flt===x?"on":""}" data-f="${x}">${x}</button>`).join("");
+$("#tb").innerHTML="<tr><th>SKU</th><th>Stock</th><th>On order</th><th>Forecast/day</th><th>Cover (d)</th><th>Lead (d)</th><th>Safety stk</th><th>Reorder pt</th><th>Status</th><th>Recommended action</th></tr>"+S.filter(s=>flt==="All"||s.st===flt).map(s=>`<tr class="row ${s.id===sel?"sel":""}" data-i="${s.id}"><td>${s.n}</td><td>${N(s.stock)}</td><td>${N(s.oo)}</td><td>${s.d.toFixed(1)}</td><td>${Math.round(s.cover)}</td><td>${s.LT}</td><td>${N(s.SS)}</td><td>${N(s.ROP)}</td><td style="text-align:center"><span class="bd" style="background:${COL[s.st]}">${s.st}</span></td><td>${s.act}</td></tr>`).join("");
+document.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{flt=b.dataset.f;table()});document.querySelectorAll(".row").forEach(r=>r.onclick=()=>{sel=+r.dataset.i;$("#pk").value=sel;table();deep();$("#dt").scrollIntoView({behavior:"smooth"})})}
+function deep(){const s=S[sel];$("#dt").textContent="🔬 "+s.n;$("#ds").innerHTML=`${s.cat} · ${s.sp.n} (${s.sp.lt}d ±${s.sp.sd}, ${s.sp.rel}% on-time) · EOQ ≈ ${N(s.eoq)} units · stock-out in ~${Math.round(s.cover)} days`;
+const hl=[...Array(12).keys()].map(k=>MN[(10+k)%12]),fl=[0,1,2].map(q=>MN[(10+q)%12]+" F");const hv=[...s.hist,null,null,null],fv=[...Array(11).fill(null),s.hist[11],...s.fc.slice(0,3).map(Math.round)],lo=fv.map((v,i)=>i>11&&v?Math.round(v*(1-1.28*s.cv)):v),up=fv.map((v,i)=>i>11&&v?Math.round(v*(1+1.28*s.cv)):v);
+mk("fc",{type:"line",data:{labels:[...hl,...fl],datasets:[{label:"Low",data:lo,borderWidth:0,pointRadius:0,backgroundColor:"rgba(123,92,255,.2)"},{label:"80% band",data:up,borderWidth:0,pointRadius:0,fill:"-1",backgroundColor:"rgba(123,92,255,.2)"},{label:"Actual units/mo",data:hv,borderColor:"#06b6a4",backgroundColor:"#06b6a4",tension:.3,borderWidth:3},{label:"Forecast",data:fv,borderColor:"#7b5cff",borderDash:[6,4],tension:.3,borderWidth:3}]},options:O({plugins:{legend:{labels:{filter:i=>i.text!=="Low"}}},scales:{y:{grid:G},x:{grid:{display:false}}}})});
+const dys=[...Array(25).keys()].map(i=>i*5),a=dys.map(d=>Math.max(0,Math.round(s.stock-dOver(s,d)+(d>=12?s.oo:0)))),b=dys.map(d=>Math.max(0,Math.round(s.stock-dOver(s,d)+(d>=12?s.oo:0)+(d>=s.LT?s.qty:0))));
+mk("pj",{type:"line",data:{labels:dys.map(d=>"D"+d),datasets:[{label:"Do nothing",data:a,borderColor:"#ff4d6d",tension:.2,borderWidth:3,pointRadius:0,fill:{target:"origin",above:"rgba(255,77,109,.1)"}},{label:"With recommended order",data:b,borderColor:"#06b6a4",tension:.2,borderWidth:3,pointRadius:0},{label:"Reorder point",data:dys.map(()=>Math.round(s.ROP)),borderColor:"#ff9f1c",borderDash:[5,4],pointRadius:0,borderWidth:2}]},options:O({scales:{y:{grid:G,min:0},x:{grid:{display:false},ticks:{maxTicksLimit:9}}}})})}
+function mid(){const hc=h=>`hsl(${210-(h-.2)/1.9*210},70%,42%)`;$("#hm").innerHTML="<tr><th></th>"+MN.map((m,i)=>`<th style="text-align:center">${m}</th>`).join("")+"</tr>"+Object.entries(SEA).map(([k,v])=>`<tr><td>${k}</td>${v.map((x,i)=>`<td style="background:${hc(x)};${i===CM?"outline:2px solid var(--tx)":""}">${x.toFixed(1)}</td>`).join("")}</tr>`).join("");
+mk("sp",{type:"bar",data:{labels:SUP.map(s=>`${s.n} (${s.rel}%)`),datasets:[{label:"Avg lead time (d)",data:SUP.map(s=>s.lt+P.dl),backgroundColor:"#3b82f6",borderRadius:6},{label:"2σ variability buffer",data:SUP.map(s=>s.sd*2),backgroundColor:"#ff9f1c",borderRadius:6}]},options:O({scales:{x:{stacked:true,grid:{display:false},ticks:{font:{size:10}}},y:{stacked:true,grid:G}}})})}
+function lists(){const po=S.filter(s=>s.qty).sort((a,b)=>a.cover-b.cover);$("#pos").textContent=po.length+" orders · "+M(T(po,s=>s.poC))+" total · sorted by urgency";
+$("#pol").innerHTML=po.map(s=>{const gap=s.cover<s.LT;return`<div class="po" style="--x:${COL[s.st]}"><div><b>${s.n}</b><small>${s.sp.n} · arrives ~${s.LT}d · stock lasts ${Math.round(s.cover)}d ${gap?"· ⚠️ gap of "+Math.round(s.LT-s.cover)+"d":""}</small></div><div style="text-align:right"><b>${N(s.qty)} units</b><small>${M(s.poC)}</small></div></div>`}).join("")||"No orders needed";
+const ov=ovs().sort((a,b)=>b.exV-a.exV);$("#cs").textContent=M(T(ov,s=>s.exV))+" excess capital could be released";
+$("#cl").innerHTML=ov.map(s=>`<div class="po" style="--x:#7b5cff"><div><b>${s.n}</b><small>${Math.round(s.cover)} days of cover · pause POs · markdown ${s.md}% · bundle/transfer</small></div><div style="text-align:right"><b>${N(s.ex)} excess</b><small>${M(s.exV)} trapped</small></div></div>`).join("")||"No overstock"}
+function insights(){const o=T(ovs(),s=>s.exV),inv=T(S,s=>s.stock*s.cost),pk=S.filter(s=>s.sv[10]/s.sv[9]>1.25).map(s=>s.short);
+$("#ins").innerHTML=[`<b>Paradox explained:</b> ${(o/inv*100).toFixed(0)}% of stock value (${M(o)}) is excess in ${ovs().length} slow SKUs, while ${bad().length} fast SKUs face ${M(T(S,s=>s.risk))} of lost sales. Capital is in the wrong place.`,`<b>Lead time × seasonality:</b> Nov–Dec demand rises 20–50% for ${pk.length} SKUs. Long-lead suppliers (Shenzhen, ToyWorld) mean orders placed late cannot arrive in time.`,`<b>Supplier variability</b> drives safety stock more than demand does. ToyWorld Asia (σ=12d, 76% on-time) needs ~${Math.round(zOf(P.sl)*12*S[13].d)} extra units for one SKU.`,`<b>Fix list:</b> release ${M(o)} from overstock, fund ${M(T(S,s=>s.poC))} of urgent POs, and re-plan quarterly by season index.`].map(t=>`<div class="ins">${t}</div>`).join("")}
+const A={
+po:()=>{const p=S.filter(s=>s.qty).sort((a,b)=>a.cover-b.cover);return`Reorder today (${M(T(p,s=>s.poC))}):<br>`+p.slice(0,6).map(s=>`• <b>${s.n}</b>: ${N(s.qty)} units from ${s.sp.n}${s.cover<s.LT?" — <b>expedite</b>":""}`).join("<br>")},
+risk:()=>{const b=bad().sort((a,c)=>c.risk-a.risk);return b.length?`${b.length} SKUs will run out before replenishment arrives:<br>`+b.map(s=>`• <b>${s.n}</b>: ~${Math.round(s.cover)} days cover vs ${s.LT}d lead time → ${M(s.risk)} at risk`).join("<br>"):"No stockout-risk SKUs in this scenario."},
+ov:()=>{const o=ovs().sort((a,b)=>b.exV-a.exV);return`${M(T(o,s=>s.exV))} is trapped in excess stock:<br>`+o.slice(0,5).map(s=>`• <b>${s.n}</b>: ${Math.round(s.cover)} days cover, ${M(s.exV)} excess → markdown ${s.md}%`).join("<br>")+"<br>Pause all POs for these."},
+se:()=>{const r=S.map(s=>[s.n,(s.fc[0]+s.fc[1])/2/s.hist[11]]).sort((a,b)=>b[1]-a[1]);return"Peak season is starting. Biggest Nov–Dec uplifts vs October:<br>"+r.slice(0,4).map(x=>`• <b>${x[0]}</b> +${Math.round((x[1]-1)*100)}%`).join("<br>")+`<br>Falling: ${r.slice(-2).map(x=>x[0]).join(", ")}.`},
+su:()=>{const s=[...SUP].sort((a,b)=>b.sd-a.sd);return"Highest-risk suppliers:<br>"+s.slice(0,3).map(x=>`• <b>${x.n}</b>: ${x.lt}d ±${x.sd}d, ${x.rel}% on-time`).join("<br>")+`<br>Tip: dual-source or move to air freight for critical SKUs. Try the delay slider (now +${P.dl}d).`},
+cap:()=>{const o=T(ovs(),s=>s.exV),p=T(S,s=>s.poC);return`Releasing ${M(o)} of excess vs funding ${M(p)} of needed POs → net cash ${o*.6>=p?"positive":"gap of "+M(p-o*.6)} (assuming 60% recovery on markdowns).`},
+sv:()=>`At ${P.sl}% service (z=${zOf(P.sl).toFixed(2)}), safety stock totals ${M(T(S,s=>s.SS*s.cost))}. Moving to 99% would cost about ${M(T(S,s=>s.SS*s.cost)*(2.33/zOf(P.sl)-1))} more. Use the slider to test.`,
+sum:()=>`${bad().length} SKUs at stockout risk (${M(T(S,s=>s.risk))} sales), ${S.filter(s=>s.st==="Reorder Now").length} need reorder, ${ovs().length} overstocked (${M(T(ovs(),s=>s.exV))} trapped). Root cause: static reorder rules ignore seasonality and lead-time variability.`,
+act:()=>"Action plan:<br>1️⃣ Expedite POs for stockout-risk SKUs<br>2️⃣ Freeze POs + markdown overstock<br>3️⃣ Replace flat reorder points with seasonal ROP = lead-time demand + safety stock<br>4️⃣ Score suppliers on lead-time σ<br>5️⃣ Review weekly with this dashboard"};
+function agent(q){q=q.toLowerCase();for(const s of S)if(s.n.toLowerCase().split(" ").some(w=>w.length>3&&q.includes(w))){sel=s.id;$("#pk").value=sel;table();deep();return`<b>${s.n}</b> [${s.st}]: forecast ${s.d.toFixed(1)}/day, ${Math.round(s.cover)} days cover vs ${s.LT}d lead time. Safety stock ${N(s.SS)}, reorder point ${N(s.ROP)}, EOQ ${N(s.eoq)}.<br><b>Action:</b> ${s.act}. Deep-dive charts updated below.`}
+if(/reorder|order|buy|purchase|po/.test(q))return A.po();if(/risk|stockout|stock-out|shortage|out of/.test(q))return A.risk();if(/over|excess|slow|dead|clear|markdown/.test(q))return A.ov();if(/season|festive|peak|forecast|demand/.test(q))return A.se();if(/suppl|lead|delay/.test(q))return A.su();if(/cash|capital|money|budget/.test(q))return A.cap();if(/service|safety/.test(q))return A.sv();if(/action|plan|recommend|fix/.test(q))return A.act();if(/sum|status|overview|problem|why/.test(q))return A.sum();return"I can cover reorders, stockout risk, overstock, seasonality, suppliers, cash impact, service level, or any SKU by name."}
+function say(t,u){const d=document.createElement("div");d.className="m "+(u?"u":"a");$("#msgs").appendChild(d);if(u)d.textContent=t;else{d.innerHTML="<i>Crunching demand, lead times and stock…</i>";setTimeout(()=>{d.innerHTML=t;$("#msgs").scrollTop=1e9},450)}$("#msgs").scrollTop=1e9}
+function ask(t){if(!t.trim())return;say(t,1);say(agent(t));$("#q").value=""}
+function all(){calc();kpis();top();table();deep();mid();lists();insights()}
+$("#pk").innerHTML=S.map(s=>`<option value="${s.id}">${s.n}</option>`).join("");$("#pk").onchange=e=>{sel=+e.target.value;table();deep()};
+const upd=()=>{P.sl=+$("#s1").value;P.dl=+$("#s2").value;P.su=+$("#s3").value;$("#v1").textContent=P.sl+"%";$("#v2").textContent="+"+P.dl+" days";$("#v3").textContent=(P.su>0?"+":"")+P.su+"%";all()};
+["s1","s2","s3"].forEach(i=>$("#"+i).oninput=upd);
+$("#sg").innerHTML=["Summarise the situation","What should I reorder today?","Which SKUs will stock out?","Where is cash trapped?","Seasonal demand outlook","Supplier risk","Action plan","Tell me about Air Fryer"].map(x=>`<button class="chip" data-s="${x}">${x}</button>`).join("");
+document.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>ask(b.dataset.s));$("#go").onclick=()=>ask($("#q").value);$("#q").onkeydown=e=>{if(e.key==="Enter")ask(e.target.value)};
+upd();say("Hi, I’m the StockSense agent. I’ve combined forecasts, seasonality and supplier lead times to find where you’re about to stock out and where cash is trapped. Ask me anything.");
+</script></body></html>
